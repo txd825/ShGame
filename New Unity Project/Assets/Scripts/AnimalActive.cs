@@ -5,7 +5,6 @@ using UnityEngine;
 public class AnimalActive : MonoBehaviour
 {
     public GUISkin guiSkin;
-
     void Start()
     {
 
@@ -15,7 +14,7 @@ public class AnimalActive : MonoBehaviour
     void Update()
     {
         Touch CurTouch = Input.GetTouch(0);
-        
+
         if (IsTouched(CurTouch))
         {
             TouchMove(CurTouch);
@@ -25,24 +24,20 @@ public class AnimalActive : MonoBehaviour
 
     void OnGUI()
     {
-        GUI.Box(new Rect(0, 0, 800, 100), string.Format("当前手指点的x坐标：{0:0.000},y坐标：{1:0.000}", Input.GetTouch(0).position.x,Input.GetTouch(0).position.y), guiSkin.box);
+        Touch CurTouch = Input.GetTouch(0);
+        GUI.Box(new Rect(0, 0, 1000, 100), string.Format("当前手指点的x坐标：{0:0.000},y坐标：{1:0.000},名字：{2}", Camera.main.ScreenToWorldPoint(CurTouch.position).x, TouchPositionToAnimalPosition(CurTouch).y, TouchName(CurTouch)), guiSkin.box);
     }
 
 
 
     bool IsTouched(Touch touch)
     {
-        Vector3 pos = TouchPositionToAnimalPosition(touch);
-        float x1 = this.transform.position.x - 0.5f;
-        float x2 = this.transform.position.x + 0.5f;
-        float y1 = this.transform.position.y - 0.5f;
-        float y2 = this.transform.position.y + 0.5f;
-        if (x1<pos.x&& x2 > pos.x&& y1 < pos.y && y2 > pos.y)
+        if (TouchName(touch) == "quadrel_26")
         {
             return true;
         }
         else
-        { 
+        {
             return false;
         }
     }
@@ -52,17 +47,26 @@ public class AnimalActive : MonoBehaviour
 
         if (touch.phase == TouchPhase.Moved)
         {
-            this.transform.position = TouchPositionToAnimalPosition(touch);
+            this.transform.position= Camera.main.ScreenToWorldPoint(touch.position);
         }
     }
 
 
     Vector2 TouchPositionToAnimalPosition(Touch touch)
     {
-        Vector2 pos = new Vector2();
-        float longth = Screen.height * 160 / 1280f;
-        pos.x = touch.position.x / longth - 2.5f;
-        pos.y = touch.position.y / longth - 4;
-        return pos;
+        RaycastHit2D touchray = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
+        return touchray.transform.position;
+    }
+
+    GameObject touchedobject(Touch touch)
+    {
+        RaycastHit2D touchray = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
+        return touchray.transform.gameObject;
+    }
+
+    string TouchName(Touch touch)
+    {
+        RaycastHit2D touchray = Physics2D.Raycast(Camera.main.ScreenToWorldPoint(touch.position), Vector2.zero);
+        return touchray.transform.gameObject.name;
     }
 }
